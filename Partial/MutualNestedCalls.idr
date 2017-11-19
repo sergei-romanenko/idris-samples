@@ -4,7 +4,7 @@ import Syntax.PreorderReasoning
 
 %default total
 
--- Here the functions `f` and `g` are total, Idris Agda is unable to prove it.
+-- Here the functions `f` and `g` are total, but Idris is unable to prove it.
 
 mutual
 
@@ -20,6 +20,44 @@ mutual
 
 -- fp5_0 : fp 5 = 5
 -- fp5_0 = Refl
+
+-- Let us postulate that `fs n` and `gs n` are smaller that `S n`.
+-- Now the termination checker is happy.
+
+mutual
+
+  fs : Nat -> Nat
+  fs Z = Z
+  fs (S n) = S (fs (assert_smaller (S n) (gs n)))
+
+  gs : Nat -> Nat
+  gs Z = Z
+  gs (S n) = S (gs (assert_smaller (S n) (fs n)))
+
+fs5_0 : fs 5 = 5
+fs5_0 = Refl
+
+-- This proof is not completely formal, since it uses the totality of `fs` that
+-- has been just postulated.
+
+mutual
+
+  fsn_n : (n : Nat) -> fs n = n
+  fsn_n Z = Z QED
+  fsn_n (S n) = cong {f=S} (
+    (fs (gs n))
+      ={ cong {f=fs} (gsn_n n) }=
+    (fs n)
+      ={ fsn_n n }=
+    n QED)
+
+  gsn_n : (n : Nat) -> gs n = n
+  gsn_n Z = Refl
+  gsn_n (S n) =
+    rewrite fsn_n n in
+    rewrite gsn_n n in
+    Refl
+
 
 mutual
 

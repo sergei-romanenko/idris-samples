@@ -23,6 +23,51 @@ fp (S (S n)) = S (S (fp (fp n)))
 -- λΠ> fp 5
 -- 5 : Nat
 
+-- Here the function `ft` is total, but Idris is unable to prove it.
+-- So we just postulate the totality of `ft (ft n))`.
+
+ft : Nat -> Nat
+ft Z = Z
+ft (S Z) = S Z
+ft (S (S n)) = S (S (assert_total $ ft (ft n)))
+
+ft5_5 : ft 5 = 5
+ft5_5 = Refl
+
+-- This proof is not completely formal, since it uses the totality of `ft` that
+-- has been just postulated.
+
+ftn_n : (n : Nat) -> ft n = n
+ftn_n Z = Z QED
+ftn_n (S Z) = (S Z) QED
+ftn_n (S (S n)) = cong {f= S . S} (
+  (ft (ft n))
+    ={ cong {f=ft} (ftn_n n) }=
+  (ft n)
+    ={ ftn_n n }=
+  n QED)
+
+-- Here the function `ft` is total, but Idris is unable to prove it.
+-- So we just assert that `fs n` is smaller than `S (S n)`, in order
+-- for the termination checker to agree that `ft (ft n))` terminates.
+
+fs : Nat -> Nat
+fs Z = Z
+fs (S Z) = S Z
+fs (S (S n)) = S (S (fs (assert_smaller (S (S n)) (fs n))))
+
+fs5_5 : fs 5 = 5
+fs5_5 = Refl
+
+-- This proof is not completely formal, since it uses the totality of `fs` that
+-- has been just postulated.
+
+fsn_n : (n : Nat) -> fs n = n
+fsn_n Z = Z QED
+fsn_n (S Z) = (S Z) QED
+fsn_n (S (S n)) = cong {f= S . S} (
+  (fs (fs n)) ={ cong {f=fs} (fsn_n n) }= (fs n) ={ fsn_n n }= n QED)
+
 mutual
 
   -- Now we specify the domain of `f` by using Bove & Capretta's technique.
