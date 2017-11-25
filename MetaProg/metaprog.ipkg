@@ -1,0 +1,7 @@
+package mataprog
+
+modules = ElabId, ElabLang, ElabEven
+
+--pkgs = pruviloj
+
+opts = "--package pruviloj"
