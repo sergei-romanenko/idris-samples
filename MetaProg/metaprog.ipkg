@@ -1,6 +1,6 @@
 package mataprog
 
-modules = ElabId, ElabLang, ElabEven
+modules = ElabId, ElabLang, ElabEven, ElabSumProd, ElabCtor
 
 --pkgs = pruviloj
 
