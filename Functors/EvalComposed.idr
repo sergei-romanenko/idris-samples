@@ -1,18 +1,8 @@
 module EvalComposed
 
+import Data.Morphisms
+
 %default total
-
-----
-
-data Fn : (a, b : Type) -> Type where
-  MkFn : (a -> b) -> Fn a b
-
-implementation Functor (Fn a) where
-  map f (MkFn g) = MkFn (f . g)
-
-implementation Applicative (Fn a) where
-  pure x = MkFn (\z => x)
-  (MkFn x) <*> (MkFn y) = MkFn (\z => (x z) (y z))
 
 ----
 
@@ -61,10 +51,10 @@ Env : Type
 Env = List (String, Int)
 
 Eval : Type -> Type
-Eval = Comp (Fn Env) Maybe
+Eval = Comp (Morphism Env) Maybe
 
 fetch : String -> Eval Int
-fetch x = MkComp (MkFn fetchVal) where
+fetch x = MkComp (Mor fetchVal) where
   fetchVal : Env -> Maybe Int
   fetchVal [] = Nothing
   fetchVal ((y, v) :: xs) =
@@ -78,7 +68,7 @@ eval (Add e1 e2) = [| eval e1 + eval e2 |]
 
 runEval : Expr -> Env -> Maybe Int
 runEval e env = case eval e of
-    MkComp (MkFn f) => f env
+    MkComp (Mor f) => f env
 
 ----
 
