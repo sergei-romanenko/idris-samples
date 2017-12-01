@@ -5,3 +5,4 @@ import ElabLang
 import ElabEven
 import ElabSumProd
 import ElabCtor
+import ElabMonoid
