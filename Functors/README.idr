@@ -1,5 +1,7 @@
 module README
 
 import EvalDirect
+import EvalMonad
 import EvalApplicative
-import EvalComposed
+import EvalComposedApplicative
+import EvalArrow

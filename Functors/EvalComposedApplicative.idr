@@ -1,4 +1,4 @@
-module EvalComposed
+module EvalComposedApplicative
 
 import Data.Morphisms
 
