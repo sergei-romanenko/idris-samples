@@ -16,11 +16,11 @@ data Eval : Type -> Type where
   MkEval : (Env -> Maybe a) -> Eval a
 
 implementation Functor Eval where
-  map f (MkEval g) = MkEval (\e => map f (g e))
+  map f (MkEval g) = MkEval (map f . g)
 
 implementation Applicative Eval where
-  pure x = MkEval (\e => Just x)
-  (MkEval f) <*> (MkEval g) = MkEval (\e => (f e) <*> (g e))
+  pure x = MkEval $ const (Just x)
+  (MkEval f) <*> (MkEval g) = MkEval $ \e => f e <*> g e
 
 implementation Monad Eval where
   (MkEval f) >>= g = MkEval $ \e =>
@@ -28,7 +28,6 @@ implementation Monad Eval where
       Nothing => Nothing
       Just x => case g x of
                     MkEval h => h e
-
 fetch : String -> Eval Int
 fetch x = MkEval fetchVal where
  fetchVal : Env -> Maybe Int

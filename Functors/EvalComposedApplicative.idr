@@ -10,11 +10,11 @@ data Comp : (f, g : Type -> Type) -> (a : Type) -> Type where
   MkComp : (f (g a)) -> Comp f g a
 
 implementation (Functor f, Functor g) => Functor (Comp f g) where
-  map h (MkComp x) = MkComp (map (map h) x)
+  map h (MkComp x) = MkComp $ map (map h) x
 
 implementation (Applicative f, Applicative g) => Applicative (Comp f g) where
   pure x = MkComp (pure (pure x))
-  (<*>) (MkComp x) (MkComp y) = MkComp (liftA2 (<*>) x y)
+  (<*>) (MkComp x) (MkComp y) = MkComp $ liftA2 (<*>) x y
     -- MkComp ((<*>) x <*> y)
 
 ----
