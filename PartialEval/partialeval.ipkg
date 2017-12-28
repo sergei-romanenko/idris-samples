@@ -1,0 +1,5 @@
+package mataprog
+
+modules = Power, Zipper, TheTrick
+
+opts = "--partial-eval"
