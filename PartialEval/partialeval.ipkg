@@ -1,5 +1,5 @@
 package mataprog
 
-modules = Power, Zipper, TheTrick, Cyclic
+modules = Power, Zipper, TheTrick, Cyclic, TuringMachine
 
 opts = "--partial-eval"
