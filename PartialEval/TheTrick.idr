@@ -1,4 +1,4 @@
-module TheTrick.Power
+module PartialEval.TheTrick
 
 --
 -- "The trick" amounts to comparing a static value to a dynamic one,
