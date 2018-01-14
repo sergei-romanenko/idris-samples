@@ -5,3 +5,4 @@ import Zipper
 import TheTrick
 import Cyclic
 import TuringMachine
+import ExprDSL
