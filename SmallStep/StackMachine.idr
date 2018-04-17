@@ -24,17 +24,17 @@ import Data.Vect
 -- A Toy Language
 --
 
-infixl 6 /+/
+infixl 8 +
 
 data Tm : Type where
   Val : (n : Nat) -> Tm
-  (/+/) : (t1, t2 : Tm) -> Tm
+  (+) : (t1, t2 : Tm) -> Tm
 
 -- Big-step evaluator
 
 eval : Tm -> Nat
 eval (Val n) = n
-eval (t1 /+/ t2) = eval t1 + eval t2
+eval (t1 + t2) = eval t1 + eval t2
 
 --
 -- Virtual machine
@@ -66,7 +66,7 @@ exec Add (n2 :: (n1 :: s)) = (n1 + n2) :: s
 
 compile : (t : Tm) -> Code i (1 + i)
 compile (Val n) = Push n
-compile (t1 /+/ t2) = Seq (Seq (compile t1) (compile t2)) Add
+compile (t1 + t2) = Seq (Seq (compile t1) (compile t2)) Add
 
 -- `compile` is correct with respect to `exec`
 
@@ -81,12 +81,12 @@ correct (Val n) s = -- Refl
     ={ Refl }=
   (eval (Val n) :: s)
   QED
-correct {i} (t1 /+/ t2) s =
+correct {i} (t1 + t2) s =
   let n1 = eval t1 in
   let n2 = eval t2 in
   let c1 = compile t1 in
   let c2 = compile t2 in
-    (exec (compile (t1 /+/ t2)) s)
+    (exec (compile (t1 + t2)) s)
       ={ Refl }=
     (exec (Seq (Seq c1 c2) Add) s)
       ={ Refl }=
@@ -98,7 +98,7 @@ correct {i} (t1 /+/ t2) s =
       ={ Refl }=
     ((n1 + n2) :: s)
       ={ Refl }=
-    (eval (t1 /+/ t2) :: s)
+    (eval (t1 + t2) :: s)
     QED
 
 -- Here is another proof, which is shorter, but is more mysterious.
@@ -106,7 +106,7 @@ correct {i} (t1 /+/ t2) s =
 correct' : (t : Tm) -> (s : Stack i) ->
   exec (compile t) s = eval t :: s
 correct' (Val n) s = Refl
-correct' (t1 /+/ t2) s =
+correct' (t1 + t2) s =
   rewrite correct' t1 s in
   rewrite correct' t2 (eval t1 :: s) in
   Refl
@@ -118,7 +118,7 @@ correct' (t1 /+/ t2) s =
 ex_code : {i : Nat} -> (t : Tm) ->
   (c : Code i (1 + i) ** (s : Stack i) -> exec c s = eval t :: s)
 ex_code (Val n) = (Push n ** (\s => (n :: s) QED))
-ex_code {i} (t1 /+/ t2) =
+ex_code {i} (t1 + t2) =
   let (c1 ** p1) = ex_code {i=i} t1 in
   let (c2 ** p2) = ex_code {i=1+i} t2 in
   let n1 = eval t1 in
@@ -144,7 +144,7 @@ ex_code {i} (t1 /+/ t2) =
 correct'' : {i : Nat} -> (t : Tm) ->
    compile {i} t = fst (ex_code {i} t)
 correct'' (Val n) = Refl
-correct'' {i} (t1 /+/ t2) with (ex_code {i=i} t1) proof eq1
+correct'' {i} (t1 + t2) with (ex_code {i=i} t1) proof eq1
   | (c1 ** p1) with (ex_code {i=1+i} t2) proof eq2
     | (c2 ** p2) =
       rewrite correct'' {i=i} t1 in
@@ -182,7 +182,7 @@ p_exec (IAdd # p) (n2 :: n1 :: s) = p_exec p ((n1 + n2) :: s)
 
 p_compile : (t : Tm) -> (p : Prog (1 + i) j) -> Prog i j
 p_compile (Val n) p = IPush n # p
-p_compile (t1 /+/ t2) p =
+p_compile (t1 + t2) p =
   p_compile t1 (p_compile t2 (IAdd # p))
 
 -- Code -> Prog
@@ -222,8 +222,8 @@ compile_p_compile : (t : Tm) -> (p : Prog (1 + i) j) ->
   flatten (compile t) p = p_compile t p
 compile_p_compile (Val n) p =
   (IPush n # p) QED
-compile_p_compile (t1 /+/ t2) p =
-  (flatten (compile (t1 /+/ t2)) p)
+compile_p_compile (t1 + t2) p =
+  (flatten (compile (t1 + t2)) p)
     ={ Refl }=
   (flatten (compile t1) (flatten (compile t2) (IAdd # p)))
     ={ compile_p_compile t1 (flatten (compile t2) (IAdd # p)) }=
@@ -231,5 +231,5 @@ compile_p_compile (t1 /+/ t2) p =
     ={ cong {f= p_compile t1} (compile_p_compile t2 (IAdd # p)) }=
   (p_compile t1 (p_compile t2 (IAdd # p)))
     ={ Refl }=
-  (p_compile (t1 /+/ t2) p)
+  (p_compile (t1 + t2) p)
   QED
