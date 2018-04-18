@@ -8,11 +8,10 @@ import Control.Isomorphism
 -- Implication is a preorder relation...
 
 namespace Impl
-  using (a, b, c : Type)
   qed : (a : Type) -> (a -> a)
   qed a = id
-  step : (a : Type) -> (ab : a -> b) -> (bc : b -> c) -> (a -> c)
-  step a ab bc = bc . ab
+  step : (a : Type) -> (p : a -> b) -> (q : b -> c) -> (a -> c)
+  step a p q = q . p
 
 --
 -- Impication is "reflexive" and "transitive".
@@ -21,10 +20,9 @@ namespace Impl
 impl_refl : (a -> a)
 impl_refl {a} = a QED
 
-impl_trans : {a, b, c : Type} ->
-  (a -> b) -> (b -> c) -> (a -> c)
-impl_trans {a} {b} {c} ab bc =
-  a ={ ab }= b ={ bc }= c QED
+impl_trans : (p : a -> b) -> (q : b -> c) -> (a -> c)
+impl_trans {a} {b} {c} p q =
+  a ={ p }= b ={ q }= c QED
 
 --
 -- Now, let's prove something by means of equational reasoning.

@@ -82,10 +82,8 @@ correct (Val n) s = -- Refl
   (eval (Val n) :: s)
   QED
 correct {i} (t1 + t2) s =
-  let n1 = eval t1 in
-  let n2 = eval t2 in
-  let c1 = compile t1 in
-  let c2 = compile t2 in
+  let n1 = eval t1; c1 = compile t1 in
+  let n2 = eval t2; c2 = compile t2 in
     (exec (compile (t1 + t2)) s)
       ={ Refl }=
     (exec (Seq (Seq c1 c2) Add) s)

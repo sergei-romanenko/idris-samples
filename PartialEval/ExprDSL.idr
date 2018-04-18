@@ -89,7 +89,7 @@ implementation Num (Expr g INT) where
 
 implementation Neg (Expr g INT) where
   (-) e1 e2 = Op (-) e1 e2
-  abs e = IF (e < 0) THEN (-e) ELSE e
+  --abs e = IF (e < 0) THEN (-e) ELSE e
   negate e = Op (-) 0 e
 
 -- Examples.
