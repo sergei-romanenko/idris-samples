@@ -68,7 +68,29 @@ compile : (t : Tm) -> Code i (1 + i)
 compile (Val n) = Push n
 compile (t1 + t2) = Seq (Seq (compile t1) (compile t2)) Add
 
--- `compile` is correct with respect to `exec`
+-- `Seq` is associative with respect to `exec`.
+
+seq_assoc : (c1 : Code i j1) -> (c2 : Code j1 j2) -> (c3 : Code j2 j) ->
+  (s : Stack i) ->
+  exec (Seq (Seq c1 c2) c3) s = exec (Seq c1 (Seq c2 c3)) s
+seq_assoc c1 c2 c3 s =
+  (exec (Seq (Seq c1 c2) c3) s)
+    ={ Refl }=
+  (exec c3 (exec (Seq c1 c2) s))
+    ={ Refl }=
+  (exec c3 (exec c2 (exec c1 s)))
+    ={ Refl }=
+  (exec (Seq c2 c3) (exec c1 s))
+    ={ Refl }=
+  (exec (Seq c1 (Seq c2 c3)) s)
+  QED
+
+-- Here is another proof, which is shorter, but is more mysterious.
+
+seq_assoc' : exec (Seq (Seq c1 c2) c3) s = exec (Seq c1 (Seq c2 c3)) s
+seq_assoc' = Refl
+
+-- `compile` is correct with respect to `exec`.
 
 correct : (t : Tm) -> (s : Stack i) ->
   exec (compile t) s = eval t :: s
@@ -81,7 +103,7 @@ correct (Val n) s = -- Refl
     ={ Refl }=
   (eval (Val n) :: s)
   QED
-correct {i} (t1 + t2) s =
+correct (t1 + t2) s =
   let n1 = eval t1; c1 = compile t1 in
   let n2 = eval t2; c2 = compile t2 in
     (exec (compile (t1 + t2)) s)
@@ -115,7 +137,8 @@ correct' (t1 + t2) s =
 
 ex_code : {i : Nat} -> (t : Tm) ->
   (c : Code i (1 + i) ** (s : Stack i) -> exec c s = eval t :: s)
-ex_code (Val n) = (Push n ** (\s => (n :: s) QED))
+ex_code (Val n) =
+  (Push n ** (\s => (n :: s) QED))
 ex_code {i} (t1 + t2) =
   let (c1 ** p1) = ex_code {i=i} t1 in
   let (c2 ** p2) = ex_code {i=1+i} t2 in
